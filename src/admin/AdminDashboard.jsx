@@ -4,6 +4,7 @@ import AdminBooksTab from "./AdminBooksTab";
 import AdminRequestTab from "./AdminRequestsTab";
 import AdminUsersTab from "./AdminUsersTab";
 import AdminReturnRequestsTab from "./AdminReturnRequestsTab";
+import { useNavigate } from "react-router-dom";
 
 function AdminDashboard() {
   const [activeSection, setActiveSection] = useState("dashboard");
@@ -17,6 +18,7 @@ function AdminDashboard() {
 
   const [loading, setLoading] = useState(false);
   const [adminName, setAdminName] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     loadStats();
@@ -41,7 +43,10 @@ function AdminDashboard() {
     localStorage.removeItem("adminToken");
     localStorage.removeItem("adminName");
     localStorage.removeItem("adminRole");
-    window.location.href = "/admin/login";
+    setTimeout(() => {
+      localStorage.clear();
+      navigate("/admin/login");
+    }, 800);
   };
 
   return (
