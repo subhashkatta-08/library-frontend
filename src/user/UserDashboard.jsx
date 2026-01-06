@@ -3,6 +3,7 @@ import api from "../api/axios";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { Toast, ToastContainer, Spinner } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 
 function UserDashboard() {
   const [activeSection, setActiveSection] = useState("dashboard");
@@ -17,6 +18,8 @@ function UserDashboard() {
   const [loading, setLoading] = useState(true); // loader state
   const [toast, setToast] = useState({ show: false, message: "", bg: "success" });
   const showToastMessage = (message, bg = "success") => setToast({ show: true, message, bg });
+
+  const navigate = useNavigate();
 
   // ---------- API LOADERS ----------
   const loadActions = async () => { try { const res = await api.get("/user/actions"); setActions(res.data); } catch (e) { console.log(e); } };
@@ -54,7 +57,10 @@ function UserDashboard() {
 
   const handleLogout = () => {
     showToastMessage("👋 Logging out...", "info");
-    setTimeout(() => { localStorage.clear(); window.location.href = "/user/login"; }, 800);
+    setTimeout(() => {
+      localStorage.clear();
+      navigate("/user/login");
+    }, 800);
   };
 
   // ---------- EDIT FORM ----------
