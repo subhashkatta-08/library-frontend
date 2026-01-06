@@ -1,12 +1,17 @@
-import { useFormik } from "formik";
-import api from "../api/axios";
-import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useFormik } from "formik";
 import * as Yup from "yup";
+import { useNavigate, Link } from "react-router-dom";
+import api from "../api/axios";
 import { Toast, ToastContainer } from "react-bootstrap";
 
 function UserLogin() {
   const navigate = useNavigate();
+
+  // Button loader state
+  const [btnLoading, setBtnLoading] = useState(false);
+
+  // Show/hide password
   const [showPassword, setShowPassword] = useState(false);
 
   // Toast state
@@ -16,6 +21,7 @@ function UserLogin() {
     setToast({ show: true, message, bg });
   };
 
+  // Formik for form handling & validation
   const formik = useFormik({
     initialValues: {
       identifier: "",
@@ -30,21 +36,27 @@ function UserLogin() {
     }),
 
     onSubmit: async (values) => {
+      setBtnLoading(true); // Start button loader
       try {
-        const res = await api.post("/user/login", values);
+        // Call backend
+        const res = await api.post("/user/login", values, { skipLoader: true });
+
+        // Save data in localStorage
         localStorage.setItem("userToken", res.data.token);
         localStorage.setItem("userRole", res.data.role);
         localStorage.setItem("userName", res.data.name);
 
         showToastMessage("✅ Login successful!", "success");
 
-        // Redirect after a short delay to show the toast
+        // Navigate to dashboard after a short delay to show toast
         setTimeout(() => {
           navigate("/user/dashboard");
-        }, 100);
+        }, 500);
       } catch (err) {
-        console.log(err);
+        console.error(err);
         showToastMessage("❌ Invalid credentials", "danger");
+      } finally {
+        setBtnLoading(false); 
       }
     },
   });
@@ -74,16 +86,12 @@ function UserLogin() {
           style={{
             maxWidth: "450px",
             width: "100%",
-            position: "relative",
             backdropFilter: "blur(8px)",
             backgroundColor: "rgba(255, 255, 255, 0.9)",
           }}
         >
           <h2 className="text-center mb-4 fw-bold text-primary">User Login</h2>
-
-          <p className="text-center text-muted mb-4">
-            Enter your credentials to continue
-          </p>
+          <p className="text-center text-muted mb-4">Enter your credentials to continue</p>
 
           <form onSubmit={formik.handleSubmit}>
             {/* Identifier */}
@@ -93,9 +101,7 @@ function UserLogin() {
                 name="identifier"
                 type="text"
                 className={`form-control ${
-                  formik.touched.identifier && formik.errors.identifier
-                    ? "is-invalid"
-                    : ""
+                  formik.touched.identifier && formik.errors.identifier ? "is-invalid" : ""
                 }`}
                 value={formik.values.identifier}
                 onChange={formik.handleChange}
@@ -111,11 +117,23 @@ function UserLogin() {
             <div className="mb-4">
               <label className="form-label fw-semibold">Password</label>
               <div className="input-group">
-                <input name="password" type={showPassword ? "text" : "password"} 
-                  className={`form-control ${ formik.touched.password && formik.errors.password? "is-invalid" : ""}`}
-                  value={formik.values.password} onChange={formik.handleChange} onBlur={formik.handleBlur} placeholder="Enter password" />
-                <button type="button" className="btn btn-outline-secondary d-flex align-items-center" onClick={() => setShowPassword(!showPassword)} >
-                  <i className={`bi ${ showPassword ? "bi-eye-slash-fill" : "bi-eye-fill" } fs-5`}></i>
+                <input
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  className={`form-control ${
+                    formik.touched.password && formik.errors.password ? "is-invalid" : ""
+                  }`}
+                  value={formik.values.password}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  placeholder="Enter password"
+                />
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary d-flex align-items-center"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  <i className={`bi ${showPassword ? "bi-eye-slash-fill" : "bi-eye-fill"} fs-5`}></i>
                 </button>
               </div>
               {formik.touched.password && formik.errors.password && (
@@ -123,20 +141,43 @@ function UserLogin() {
               )}
             </div>
 
-            <button type="submit" className="btn btn-primary w-100 fw-semibold" style={{ padding: "10px", fontSize: "16px" }} >
-              Login
+            {/* Submit Button with loader */}
+            <button
+              type="submit"
+              className="btn btn-primary w-100 fw-semibold d-flex justify-content-center align-items-center"
+              style={{ padding: "10px", fontSize: "16px" }}
+              disabled={btnLoading}
+            >
+              {btnLoading ? (
+                <>
+                  <span
+                    className="spinner-border spinner-border-sm me-2"
+                    role="status"
+                    aria-hidden="true"
+                  ></span>
+                  Logging in...
+                </>
+              ) : (
+                "Login"
+              )}
             </button>
 
             <p className="text-center text-muted mt-3 mb-0">
-              Don't have an account? <a href="/user/register">Register</a>
+              Don't have an account? <Link to="/user/register">Register</Link>
             </p>
           </form>
         </div>
       </div>
 
-      {/* Toast */}
+      {/* Toast Notifications */}
       <ToastContainer position="bottom-center" className="p-3">
-        <Toast show={toast.show} onClose={() => setToast({ ...toast, show: false })} delay={100} autohide bg={toast.bg} >
+        <Toast
+          show={toast.show}
+          onClose={() => setToast({ ...toast, show: false })}
+          delay={1500}
+          autohide
+          bg={toast.bg}
+        >
           <Toast.Body className="text-white fw-semibold">{toast.message}</Toast.Body>
         </Toast>
       </ToastContainer>
