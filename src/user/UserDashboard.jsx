@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -15,6 +16,71 @@ function UserDashboard() {
   const handleLogout = () => {
     localStorage.clear();
     navigate("/user/login");
+=======
+import { useEffect, useState } from "react";
+import api from "../api/axios";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import { Toast, ToastContainer, Spinner } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
+
+function UserDashboard() {
+  const [activeSection, setActiveSection] = useState("dashboard");
+  const [editing, setEditing] = useState(false);
+
+  const [actions, setActions] = useState({ TOTAL: 0, ISSUED: 0, PENDING: 0, RETURNED: 0 });
+  const [user, setUser] = useState({});
+  const [userBooks, setUserBooks] = useState([]);
+  const [userActivity, setUserActivity] = useState([]);
+  const [availableBooks, setAvailableBooks] = useState([]);
+
+  const [loading, setLoading] = useState(true); // loader state
+  const [toast, setToast] = useState({ show: false, message: "", bg: "success" });
+  const showToastMessage = (message, bg = "success") => setToast({ show: true, message, bg });
+
+  const navigate = useNavigate();
+
+  // ---------- API LOADERS ----------
+  const loadActions = async () => { try { const res = await api.get("/user/actions"); setActions(res.data); } catch (e) { console.log(e); } };
+  const loadOwnedBooks = async () => { try { const res = await api.get("/user/my-books"); setUserBooks(res.data); } catch (e) { console.log(e); } };
+  const loadDetails = async () => {
+    try {
+      const res = await api.get("/user/details");
+      setUser(res.data);
+      formik.setValues({ name: res.data.name || "", email: res.data.email || "", mobileNo: res.data.mobileNo || "" });
+    } catch (e) { console.log(e); }
+  };
+  const loadActivity = async () => { try { const res = await api.get("/user/my-activity"); setUserActivity(res.data); } catch (e) { console.log(e); } };
+  const loadAvailableBooks = async () => { try { const res = await api.get("/user/available-books"); setAvailableBooks(res.data); } catch (e) { console.log(e); } };
+
+  // ---------- ACTIONS ----------
+  const returnBook = async (bookId) => {
+    if (!window.confirm("Return this book?")) return;
+    try {
+      await api.post(`/user/return/${bookId}`);
+      loadOwnedBooks();
+      loadActivity();
+      loadActions();
+      showToastMessage("✅ Book returned successfully", "success");
+    } catch (e) { console.error(e); showToastMessage(e?.response?.data || "Failed to return book", "danger"); }
+  };
+
+  const requestBook = async (id) => {
+    try {
+      await api.post(`/user/request/${id}`);
+      loadActivity();
+      loadActions();
+      showToastMessage("✅ Book requested successfully", "success");
+    } catch (e) { console.error(e); showToastMessage(e?.response?.data || "Failed to request book", "danger"); }
+  };
+
+  const handleLogout = () => {
+    showToastMessage("👋 Logging out...", "info");
+    setTimeout(() => {
+      localStorage.clear();
+      navigate("/user/login");
+    }, 800);
+>>>>>>> 9e79a95b7ec71283e9d084417966ea59f6cccae5
   };
 
   const menuItems = [
