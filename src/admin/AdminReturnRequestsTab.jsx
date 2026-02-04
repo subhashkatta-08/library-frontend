@@ -20,7 +20,6 @@ function AdminReturnRequestsTab() {
     setLoading(true);
     try {
       const res = await api.get("/admin/return/requested");
-      console.log(res.data);
       setRecords(res.data || []);
     } catch (err) {
       console.error(err);
