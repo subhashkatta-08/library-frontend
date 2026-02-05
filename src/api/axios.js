@@ -9,7 +9,7 @@ export const setLoaderHandlers = (show, hide) => {
 };
 
 const api = axios.create({
-  baseURL: "https://library-backend-sim0.onrender.com//library-api"
+  baseURL: "https://library-backend-sim0.onrender.com/library-api"
 });
 
 api.interceptors.request.use(
