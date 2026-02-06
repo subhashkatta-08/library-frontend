@@ -32,13 +32,9 @@ function UserBooks() {
             <div key={book.id} className="col-md-4">
               <div className="card shadow-sm border-0 rounded-4 h-100">
                 <div className="card-body">
-                  <h6 className="fw-bold">{book.title}</h6>
-                  <small className="text-muted">{book.author}</small>
-
-                  <button
-                    className="btn btn-sm btn-danger w-100 mt-3"
-                    onClick={() => returnBook(book.id)}
-                  >
+                  <h6 className="fw-bold">{book.bookTitle}</h6>
+                  <small className="text-muted"> Due Date : {new Date(book.dueDate).toLocaleDateString()}</small>
+                  <button className="btn btn-sm btn-danger w-100 mt-3" onClick={() => returnBook(book.id)}>
                     Return Book
                   </button>
                 </div>
