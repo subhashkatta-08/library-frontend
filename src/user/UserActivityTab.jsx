@@ -30,6 +30,11 @@ function UserActivityTab() {
     if (item.issueDate) return "Issued";
     return "Requested";
   };
+  const formatDate = (date) => {
+    if (!date) return "-";
+    return new Date(date).toLocaleDateString("en-IN");
+  };
+
 
   return (
     <>
@@ -49,16 +54,25 @@ function UserActivityTab() {
                   <div>
                     <div className="fw-semibold">📘 {item.bookTitle || "Book"}</div>
                     <small className="text-muted d-block">
-                      Requested: {item.requestDate || "-"}
+                      Requested: {formatDate(item.requestDate)}
                     </small>
+                    
                     {item.issueDate && (
-                      <small className="text-muted d-block">Issued: {item.issueDate}</small>
+                      <small className="text-muted d-block">
+                        Issued: {formatDate(item.issueDate)}
+                      </small>
                     )}
+                    
                     {item.returnDate && (
-                      <small className="text-muted d-block">Returned: {item.returnDate}</small>
+                      <small className="text-muted d-block">
+                        Returned: {formatDate(item.returnDate)}
+                      </small>
                     )}
+                    
                     {item.dueDate && !item.returnDate && (
-                      <small className="text-danger d-block">Due: {item.dueDate}</small>
+                      <small className="text-danger d-block">
+                        Due: {formatDate(item.dueDate)}
+                      </small>
                     )}
                   </div>
                   <span className={`badge bg-${getStatusBadge(item)}`}>
@@ -76,10 +90,24 @@ function UserActivityTab() {
                 <div className="card shadow-sm h-100">
                   <div className="card-body d-flex flex-column">
                     <h6 className="fw-bold">📘 {item.bookTitle || "Book"}</h6>
-                    <p className="mb-1"><strong>Requested:</strong> {item.requestDate || "-"}</p>
-                    {item.issueDate && <p className="mb-1"><strong>Issued:</strong> {item.issueDate}</p>}
-                    {item.returnDate && <p className="mb-1"><strong>Returned:</strong> {item.returnDate}</p>}
-                    {item.dueDate && !item.returnDate && <p className="mb-1 text-danger"><strong>Due:</strong> {item.dueDate}</p>}
+                    <p className="mb-1">
+                      <strong>Requested:</strong> {formatDate(item.requestDate)}
+                    </p>
+                    {item.issueDate && (
+                      <p className="mb-1">
+                        <strong>Issued:</strong> {formatDate(item.issueDate)}
+                      </p>
+                    )}
+                    {item.returnDate && (
+                      <p className="mb-1">
+                        <strong>Returned:</strong> {formatDate(item.returnDate)}
+                      </p>
+                    )}
+                    {item.dueDate && !item.returnDate && (
+                      <p className="mb-1 text-danger">
+                        <strong>Due:</strong> {formatDate(item.dueDate)}
+                      </p>
+                    )}
                     <span className={`badge mt-auto bg-${getStatusBadge(item)}`}>
                       {getStatusText(item)}
                     </span>
